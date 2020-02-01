@@ -17,7 +17,6 @@ int main(int argc, char *argv[])
     QObject::connect(&canvas, &Canvas::quit, &a, &QApplication::quit, Qt::QueuedConnection);
     canvas.show();
 
-    a.setQuitOnLastWindowClosed(true);
     return a.exec();
 }
 //==================================================================================================

@@ -49,6 +49,7 @@ typedef struct CityStruct
 {
     qreal lat {0};
     qreal lon {0};
+    int minutes_offset {0};
     QPointF point;
     QString city {""};
 
@@ -58,6 +59,7 @@ typedef struct CommonStruct
 {
     int update_current_sec {3600};
     QString api_key {""};
+    QString api_username {""};
     QString font_face {"Monospace"};
 
 } CommonStruct;

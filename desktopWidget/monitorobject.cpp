@@ -62,13 +62,13 @@ void MonitorObject::updateValues()
         if(monitor.name == "cmd") {
 
             QString outStr;
-            if(!system_utils::osCmd(monitor.arg, outStr, 500)) outStr = "0";
+            if(!system_utils::osCmd(monitor.arg, outStr, 600)) outStr = "0";
             bool ok;
             monitor.value = convert::strToDouble(outStr, &ok);
             if(!ok) monitor.value = 0;
             val_graph = monitor.value;
             for(SubStruct &sub: monitor.sub) {
-                if(!system_utils::osCmd(sub.arg, outStr, 500)) outStr = "0";
+                if(!system_utils::osCmd(sub.arg, outStr, 600)) outStr = "0";
                 sub.value = outStr;
             }
         }
@@ -100,11 +100,11 @@ void MonitorObject::updateValues()
             qreal val = 0.0;
             bool ok;
 
-#if defined (Q_OS_WIN)
+#if defined (Q_OS_WIN32)
             ok = hardware_utils::getTemperature( monitor.arg.toInt(), val );
             monitor.value = ok ? val : 0.0;
 #else
-            ok = system_utils::osCmd(monitor.arg, outStr, 500);
+            ok = system_utils::osCmd(monitor.arg, outStr, 600);
             if(ok) {
                 val = convert::strToDouble(outStr, &ok);
                 if(ok && (monitor.arg.indexOf("/hwmon/")>0)) val /= 1000.0;
@@ -115,10 +115,10 @@ void MonitorObject::updateValues()
             for(SubStruct &sub: monitor.sub) {
 
                 val = 0.0;
-#if defined (Q_OS_WIN)
+#if defined (Q_OS_WIN32)
                 ok = hardware_utils::getTemperature( sub.arg.toInt(), val );
 #else
-                ok = system_utils::osCmd(sub.arg, outStr, 500);
+                ok = system_utils::osCmd(sub.arg, outStr, 600);
                 if(ok) {
                     val = convert::strToDouble(outStr, &ok);
                     if(ok && (sub.arg.indexOf("/hwmon/")>0)) val /= 1000.0;
@@ -154,7 +154,7 @@ void MonitorObject::updateValues()
         else if((monitor.name == "up") || (monitor.name == "down")) {
 
             if(!netOK) {
-#if defined (Q_OS_WIN)
+#if defined (Q_OS_WIN32)
                 QString err;
                 netOK = hardware_utils::netInfo( monitor.arg, rx, tx, err );
                 if(!netOK && isFirst)

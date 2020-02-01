@@ -72,7 +72,7 @@ Canvas::~Canvas()
 //==============================================================================
 void Canvas::setupMenu()
 {
-    actionOpenMap = new QAction(tr("OpenMap"), this);
+    actionOpenMap = new QAction(tr("Open map"), this);
     connect(actionOpenMap, &QAction::triggered, this, &Canvas::on_actionOpenMapTriggered);
     m_menu.addAction(actionOpenMap);
     m_menu.addSeparator();
@@ -300,7 +300,10 @@ void Canvas::on_settingsFinishReading()
 void Canvas::on_actionAboutTriggered()
 {
     emit toLog(tr("Canvas slot on_actionAboutTriggered()"), Log::LogDbg);
-    gui_utils::showAboutDialog(tr("Evgeniy Teterin"), this);
+    gui_utils::showAboutDialog(qApp->applicationName(),
+                               tr("Evgeny Teterin"),
+                               QString(),
+                               false);
 }
 //==============================================================================
 void Canvas::on_actionOpenMapTriggered()

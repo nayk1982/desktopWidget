@@ -16,7 +16,6 @@
 *.so.*
 *_pch.h.cpp
 *_resource.rc
-*.qm
 *.tmp
 *.bak
 *.~*

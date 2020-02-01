@@ -1,7 +1,5 @@
 #include <QImage>
-//
 #include "Graph"
-//
 #include "worldmapobject.h"
 //==============================================================================
 

@@ -1,5 +1,6 @@
 {
 	"api_key": "API_KEY_FOR_api.ipapi.com",
+	"api_username": "USERNAME_FOR_api.geonames.org",
 	"update_current_secs": 3600,
 	"font_face": "Monospace",
 	"box": {

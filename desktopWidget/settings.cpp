@@ -13,6 +13,7 @@
 #include "SystemUtils"
 #include "Geo"
 #include "Graph"
+#include "NetworkClient"
 //
 #include "settings.h"
 //==============================================================================
@@ -262,6 +263,7 @@ void Settings::updateCommonConfig(const QJsonObject &config)
     m_shadow.cy = config.value("shadow").toObject().value("cy").toDouble();
 
     m_comm.api_key = config.value("api_key").toString("");
+    m_comm.api_username = config.value("api_username").toString("demo");
     m_comm.font_face = config.value("font_face").toString("Monospace");
     m_comm.update_current_sec = config.value("update_current_secs").toInt();
 
@@ -524,18 +526,21 @@ void Settings::updateMonitorConfig(const QJsonObject &config)
         }
         else if(monStruct.name == "fs") {
 
-#if defined(Q_OS_WIN)
+#if defined(Q_OS_WIN32)
             monStruct.dev = monStruct.arg;
 #else
             QString outStr = "";
             if(system_utils::osCmd("df --output=target,source | grep /dev/ | grep '" +
-                                   monStruct.arg + " ' | awk '{print $2}'", outStr, 300)) {
+                                   monStruct.arg + " ' | awk '{print $2}'", outStr, 1000)) {
 
                 if(outStr.indexOf("/dev/mapper/") == 0) {
-                    system_utils::osCmd( "readlink -e " + outStr, outStr, 300 );
+                    system_utils::osCmd( "readlink -e " + outStr, outStr, 1000 );
                 }
                 if(outStr.indexOf("/dev/") == 0) outStr.remove(0, 5);
-                monStruct.dev = outStr;
+                monStruct.dev = outStr.trimmed();
+
+                emit toLog(tr("Mount point: '%1', Device name: '%2' ('%3')")
+                           .arg(monStruct.arg).arg(monStruct.dev).arg(outStr), Log::LogDbg);
             }
 #endif
             SubStruct ss;
@@ -579,6 +584,7 @@ void Settings::updateWorldmapConfig(const QJsonObject &config)
 {
     emit toLog(tr("Load worldmap config from JSON"), Log::LogInfo);
 
+    constexpr int default_offset = 24 * 60;
     m_miniCityVec.clear();
     m_cityVec.clear();
     QJsonArray city_coord = config.value("city_coord").toArray();
@@ -592,6 +598,7 @@ void Settings::updateWorldmapConfig(const QJsonObject &config)
         city.city = obj.value("city").toString();
         city.lat = obj.value("lat").toDouble();
         city.lon = obj.value("lon").toDouble();
+        city.minutes_offset = obj.value("minute_offset").toInt(default_offset);
         city.point = geo::coordGeoToMap( city.lat, city.lon,
                                          m_map.map_width, m_map.map_cx, m_map.map_cy );
 
