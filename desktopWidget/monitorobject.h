@@ -4,7 +4,7 @@
 #include <QGraphicsObject>
 #include <QTimer>
 //
-#include "Log"
+#include "nayk/Log"
 //
 #include "common.h"
 #include "settings.h"

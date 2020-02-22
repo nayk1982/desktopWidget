@@ -3,13 +3,13 @@
 #include <QPainter>
 #include <QMouseEvent>
 //
-#include "AppCore"
-#include "FileSys"
-#include "Convert"
-#include "Geo"
-#include "Graph"
-#include "SystemUtils"
-#include "GuiUtils"
+#include "nayk/AppCore"
+#include "nayk/FileSys"
+#include "nayk/Convert"
+#include "nayk/Geo"
+#include "nayk/Graph"
+#include "nayk/SystemUtils"
+#include "nayk/GuiUtils"
 //
 #include "canvas.h"
 #include "common.h"

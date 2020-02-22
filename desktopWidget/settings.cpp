@@ -7,13 +7,13 @@
 #include <QJsonArray>
 #include <QThread>
 //
-#include "FileSys"
-#include "Convert"
-#include "AppCore"
-#include "SystemUtils"
-#include "Geo"
-#include "Graph"
-#include "NetworkClient"
+#include "nayk/FileSys"
+#include "nayk/Convert"
+#include "nayk/AppCore"
+#include "nayk/SystemUtils"
+#include "nayk/Geo"
+#include "nayk/Graph"
+#include "nayk/NetworkClient"
 //
 #include "settings.h"
 //==============================================================================

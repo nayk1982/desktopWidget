@@ -1,5 +1,5 @@
 #include <QImage>
-#include "Graph"
+#include "nayk/Graph"
 #include "worldmapobject.h"
 //==============================================================================
 

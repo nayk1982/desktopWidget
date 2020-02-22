@@ -5,9 +5,8 @@
 #===============================================================================
 
 QT += core gui widgets network
-CONFIG += hardware
 
-include( $${PWD}/../../_nayk/nayk.pri )
+include( $${PWD}/../../../_nayk/nayk_common.pri )
 
 # Sources and Headers ==========================================================
 
@@ -53,3 +52,20 @@ PRE_TARGETDEPS += \
 
 QMAKE_EXTRA_TARGETS += \
     main_tr
+
+# Libs =========================================================================
+
+INCLUDEPATH *= \
+    $${COMMON_LIBS_DIR}/include
+
+win32 {
+    NAYK_LIB_VER = 1
+}
+
+LIBS *= \
+    -L$${COMMON_LIBS_DIR} \
+    -lnayk_core$${NAYK_LIB_VER} \
+    -lnayk_widgets$${NAYK_LIB_VER} \
+    -lnayk_graph$${NAYK_LIB_VER} \
+    -lnayk_hardware$${NAYK_LIB_VER} \
+    -lnayk_network$${NAYK_LIB_VER} \

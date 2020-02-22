@@ -7,7 +7,7 @@
 #include <QTimer>
 #include <QMenu>
 #include <QEvent>
-#include "Log"
+#include "nayk/Log"
 #include "settings.h"
 #include "customscene.h"
 //==============================================================================

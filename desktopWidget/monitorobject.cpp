@@ -1,8 +1,8 @@
-#include "FileSys"
-#include "Convert"
-#include "HardwareUtils"
-#include "Graph"
-#include "SystemUtils"
+#include "nayk/FileSys"
+#include "nayk/Convert"
+#include "nayk/HardwareUtils"
+#include "nayk/Graph"
+#include "nayk/SystemUtils"
 
 #include "monitorobject.h"
 //==============================================================================

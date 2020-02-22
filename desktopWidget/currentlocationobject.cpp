@@ -1,7 +1,7 @@
-#include "NetworkClient"
-#include "SystemUtils"
-#include "Geo"
-#include "Graph"
+#include "nayk/NetworkClient"
+#include "nayk/SystemUtils"
+#include "nayk/Geo"
+#include "nayk/Graph"
 //
 #include "currentlocationobject.h"
 //==============================================================================

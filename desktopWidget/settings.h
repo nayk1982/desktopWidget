@@ -6,7 +6,7 @@
 #include <QFileSystemWatcher>
 #include <QJsonObject>
 
-#include "Log"
+#include "nayk/Log"
 #include "common.h"
 //==============================================================================
 class Settings : public QObject

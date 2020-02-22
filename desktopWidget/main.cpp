@@ -1,6 +1,6 @@
 #include <QApplication>
 #include <QObject>
-#include "AppCore"
+#include "nayk/AppCore"
 #include "canvas.h"
 //==================================================================================================
 int main(int argc, char *argv[])
@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
     }
 
     Canvas canvas;
+    canvas.setObjectName("canvasObject");
     QObject::connect(&canvas, &Canvas::quit, &a, &QApplication::quit, Qt::QueuedConnection);
     canvas.show();
 

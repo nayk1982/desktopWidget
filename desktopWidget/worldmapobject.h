@@ -3,7 +3,7 @@
 
 #include <QGraphicsObject>
 //
-#include "Log"
+#include "nayk/Log"
 //
 #include "common.h"
 #include "settings.h"

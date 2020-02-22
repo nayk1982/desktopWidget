@@ -5,7 +5,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 
-#include "Log"
+#include "nayk/Log"
 //==============================================================================
 class CustomScene : public QGraphicsScene
 {
