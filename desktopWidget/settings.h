@@ -34,6 +34,7 @@ public:
     QVector<CityStruct> miniCityVec() const;
     QVector<CityStruct> cityVec() const;
     QVector<MonitorStruct> monVec() const;
+    bool mapVisible() const;
 
 signals:
     void toLog(const QString &text, nayk::Log::LogType logType = nayk::Log::LogInfo);
@@ -42,6 +43,7 @@ signals:
 
 private:
     bool m_debug {false};
+    bool m_mapVisible {false};
     int m_displayNum {0};
     QRect m_screenGeometry;
     QString m_appDir {""};

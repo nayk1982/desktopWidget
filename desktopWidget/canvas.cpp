@@ -178,14 +178,17 @@ bool Canvas::eventFilter(QObject *obj, QEvent *event)
         m_mouseCoord = mEvent->pos();
 
         if(mEvent->button() == Qt::RightButton) {
-            m_geoCoord = geo::coordMapToGeo( m_mouseCoord.x(), m_mouseCoord.y(),
-                                            m_settings->map().map_width,
-                                            m_settings->map().map_cx,
-                                            m_settings->map().map_cy );
-            actionOpenMap->setText(tr("Open map (lat: %1, lon: %2)")
-                                   .arg(convert::doubleToStr(m_geoCoord.y(),6))
-                                   .arg(convert::doubleToStr(m_geoCoord.x(),6))
-                                   );
+
+            if(m_settings->mapVisible()) {
+                m_geoCoord = geo::coordMapToGeo( m_mouseCoord.x(), m_mouseCoord.y(),
+                                                 m_settings->map().map_width,
+                                                 m_settings->map().map_cx,
+                                                 m_settings->map().map_cy );
+                actionOpenMap->setText(tr("Open map (lat: %1, lon: %2)")
+                                       .arg(convert::doubleToStr(m_geoCoord.y(),6))
+                                       .arg(convert::doubleToStr(m_geoCoord.x(),6))
+                                       );
+            }
             m_menu.popup(m_mouseCoord);
         }
         return true;
@@ -195,7 +198,7 @@ bool Canvas::eventFilter(QObject *obj, QEvent *event)
         emit toLog(tr("MouseButtonDblClick event"), Log::LogDbg);
         m_mouseCoord = mEvent->pos();
 
-        if(mEvent->button() == Qt::LeftButton) {
+        if((mEvent->button() == Qt::LeftButton) && m_settings->mapVisible()) {
             m_geoCoord = geo::coordMapToGeo( m_mouseCoord.x(), m_mouseCoord.y(),
                                             m_settings->map().map_width,
                                             m_settings->map().map_cx,
@@ -229,59 +232,65 @@ void Canvas::on_settingsFinishReading()
     m_log->deleteOldLogFiles();
 
     m_scene->clear();
-    setFixedSize( m_settings->screenGeometry().width(),
-                  m_settings->screenGeometry().height() );
+
+    setFixedSize( m_settings->screenGeometry().width(), m_settings->screenGeometry().height() );
     setGeometry( m_settings->screenGeometry() );
     m_scene->setSceneRect( 0, 0, geometry().width(), geometry().height() );
 
-    WorldMapObject *worldMapObject = new WorldMapObject(m_settings);
-    worldMapObject->setObjectName("worldMapObject");
-    worldMapObject->setPos(0, 0);
-    worldMapObject->setZValue(0);
-    m_scene->addItem(worldMapObject);
+    actionOpenMap->setVisible(m_settings->mapVisible());
 
-    connect(worldMapObject, &WorldMapObject::toLog,
-            m_log, &Log::saveToLog, Qt::QueuedConnection);
+    if(m_settings->mapVisible()) {
 
-    for(int i=0; i<2; ++i) {
+        WorldMapObject *worldMapObject = new WorldMapObject(m_settings);
+        worldMapObject->setObjectName("worldMapObject");
+        worldMapObject->setPos(0, 0);
+        worldMapObject->setZValue(0);
+        m_scene->addItem(worldMapObject);
 
-        m_utcLine[i] = m_settings->utcLine();
-        UtcLineObject *utcLineObject = new UtcLineObject(m_settings);
-        utcLineObject->setObjectName(QString("utcLineObject%1").arg(i));
-        utcLineObject->setPos(0,0);
-        utcLineObject->setZValue(1);
-        m_scene->addItem(utcLineObject);
-
-        connect(utcLineObject, &UtcLineObject::toLog,
+        connect(worldMapObject, &WorldMapObject::toLog,
                 m_log, &Log::saveToLog, Qt::QueuedConnection);
 
-        UtcTextObject *utcTextObject = new UtcTextObject(m_settings);
-        utcTextObject->setObjectName(QString("utcTextObject%1").arg(i));
-        utcTextObject->setPos(0,0);
-        utcTextObject->setZValue(2);
-        m_scene->addItem(utcTextObject);
+        for(int i=0; i<2; ++i) {
 
-        connect(utcTextObject, &UtcTextObject::toLog,
+            m_utcLine[i] = m_settings->utcLine();
+            UtcLineObject *utcLineObject = new UtcLineObject(m_settings);
+            utcLineObject->setObjectName(QString("utcLineObject%1").arg(i));
+            utcLineObject->setPos(0,0);
+            utcLineObject->setZValue(1);
+            m_scene->addItem(utcLineObject);
+
+            connect(utcLineObject, &UtcLineObject::toLog,
+                    m_log, &Log::saveToLog, Qt::QueuedConnection);
+
+            UtcTextObject *utcTextObject = new UtcTextObject(m_settings);
+            utcTextObject->setObjectName(QString("utcTextObject%1").arg(i));
+            utcTextObject->setPos(0,0);
+            utcTextObject->setZValue(2);
+            m_scene->addItem(utcTextObject);
+
+            connect(utcTextObject, &UtcTextObject::toLog,
+                    m_log, &Log::saveToLog, Qt::QueuedConnection);
+
+            if(i == 0)
+                connect(this, &Canvas::utcDataChanged0, utcTextObject, &UtcTextObject::dataChanged);
+            else
+                connect(this, &Canvas::utcDataChanged1, utcTextObject, &UtcTextObject::dataChanged);
+        }
+
+        CurrentLocationObject *currentLocationObject = new CurrentLocationObject(m_settings);
+        currentLocationObject->setObjectName("currentLocationObject");
+        currentLocationObject->setPos(m_settings->currentLocation().point);
+        currentLocationObject->setZValue(10);
+        m_scene->addItem(currentLocationObject);
+
+        connect(currentLocationObject, &CurrentLocationObject::toLog,
                 m_log, &Log::saveToLog, Qt::QueuedConnection);
+        connect(currentLocationObject, &CurrentLocationObject::locationChanged,
+                this, &Canvas::on_currentLocationChanged);
+        connect(currentLocationObject, &CurrentLocationObject::locationChanged,
+                worldMapObject, &WorldMapObject::currentLocationChanged);
 
-        if(i == 0)
-            connect(this, &Canvas::utcDataChanged0, utcTextObject, &UtcTextObject::dataChanged);
-        else
-            connect(this, &Canvas::utcDataChanged1, utcTextObject, &UtcTextObject::dataChanged);
     }
-
-    CurrentLocationObject *currentLocationObject = new CurrentLocationObject(m_settings);
-    currentLocationObject->setObjectName("currentLocationObject");
-    currentLocationObject->setPos(m_settings->currentLocation().point);
-    currentLocationObject->setZValue(10);
-    m_scene->addItem(currentLocationObject);
-
-    connect(currentLocationObject, &CurrentLocationObject::toLog,
-            m_log, &Log::saveToLog, Qt::QueuedConnection);
-    connect(currentLocationObject, &CurrentLocationObject::locationChanged,
-            this, &Canvas::on_currentLocationChanged);
-    connect(currentLocationObject, &CurrentLocationObject::locationChanged,
-            worldMapObject, &WorldMapObject::currentLocationChanged);
 
     MonitorObject *monitorObject = new MonitorObject(m_settings);
     monitorObject->setObjectName("monitorObject");
@@ -293,8 +302,10 @@ void Canvas::on_settingsFinishReading()
     connect(monitorObject, &MonitorObject::toLog,
             m_log, &Log::saveToLog, Qt::QueuedConnection);
 
-    updateUtcLongitude(true);
-    m_timer.start();
+    if(m_settings->mapVisible()) {
+        updateUtcLongitude(true);
+        m_timer.start();
+    }
 }
 //==============================================================================
 void Canvas::on_actionAboutTriggered()
@@ -329,14 +340,16 @@ void Canvas::on_currentLocationChanged(const CurrentLocationStruct &currentLocat
 void Canvas::on_sceneRightMouseClick(QPoint pos)
 {
     m_mouseCoord = pos;
-    m_geoCoord = geo::coordMapToGeo( m_mouseCoord.x(), m_mouseCoord.y(),
-                                    m_settings->map().map_width,
-                                    m_settings->map().map_cx,
-                                    m_settings->map().map_cy );
-    actionOpenMap->setText(tr("Open map (lat: %1, lon: %2)")
-                           .arg(convert::doubleToStr(m_geoCoord.y(),6))
-                           .arg(convert::doubleToStr(m_geoCoord.x(),6))
-                           );
+    if(m_settings->mapVisible()) {
+        m_geoCoord = geo::coordMapToGeo( m_mouseCoord.x(), m_mouseCoord.y(),
+                                         m_settings->map().map_width,
+                                         m_settings->map().map_cx,
+                                         m_settings->map().map_cy );
+        actionOpenMap->setText(tr("Open map (lat: %1, lon: %2)")
+                               .arg(convert::doubleToStr(m_geoCoord.y(),6))
+                               .arg(convert::doubleToStr(m_geoCoord.x(),6))
+                               );
+    }
     m_menu.popup(m_mouseCoord);
 }
 //==============================================================================

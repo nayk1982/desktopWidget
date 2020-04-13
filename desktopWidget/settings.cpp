@@ -125,6 +125,11 @@ QVector<MonitorStruct> Settings::monVec() const
     return m_monVec;
 }
 //==============================================================================
+bool Settings::mapVisible() const
+{
+    return m_mapVisible;
+}
+//==============================================================================
 void Settings::readSettings()
 {
     emit toLog(tr("Read settings"), Log::LogInfo);
@@ -135,6 +140,7 @@ void Settings::readSettings()
     QSettings ini(m_profileDir + file_Config, QSettings::IniFormat);
     ini.setIniCodec("UTF-8");
     m_debug = ini.value("main/dbg", false).toBool();
+    m_mapVisible = ini.value("main/map_visible", true).toBool();
     m_displayNum = qBound(0 ,
                           ini.value("main/display", 0).toInt(),
                           QGuiApplication::screens().size()-1
@@ -195,15 +201,22 @@ void Settings::readSettings()
         m_fsWatcher.addPath(m_profileDir + file_MonitorJson);
     }
 
-    QJsonObject worldmapObj;
-    if(loadJson( m_profileDir + file_WorldmapJson,
-                 ":/json/worldmap.json", worldmapObj )) {
-        m_fsWatcher.addPath(m_profileDir + file_WorldmapJson);
-    }
-
     updateCommonConfig(commonObj);
+
+    if(!m_mapVisible)
+        m_screenGeometry.setTop( m_screenGeometry.bottom() - qRound(m_box.height + 3.0 * m_box.border_width + 0.5) );
+
     updateMonitorConfig(monitorObj);
-    updateWorldmapConfig(worldmapObj);
+
+    if(m_mapVisible) {
+
+        QJsonObject worldmapObj;
+        if(loadJson( m_profileDir + file_WorldmapJson,
+                     ":/json/worldmap.json", worldmapObj )) {
+            m_fsWatcher.addPath(m_profileDir + file_WorldmapJson);
+        }
+        updateWorldmapConfig(worldmapObj);
+    }
 }
 //==============================================================================
 bool Settings::loadJson(const QString &fileName, const QString &resFileName,
